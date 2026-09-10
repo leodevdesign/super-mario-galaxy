@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <title>Test 3D Planet</title>
+  <style>
+    body {
+      margin: 0;
+      background: #000000;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      overflow: hidden;
+    }
+    #canvas-container {
+      width: 800px;
+      height: 800px;
+      position: relative;
+    }
+    canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <div id="canvas-container"></div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script>
+    const container = document.getElementById('canvas-container');
+    const scene = new THREE.Scene();
+
+    const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 1000);
+    camera.position.set(0, 0.4, 2.9);
+    camera.lookAt(0, 0, 0);
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, powerPreference: 'high-performance' });
+    renderer.setSize(800, 800);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.05;
+    container.appendChild(renderer.domElement);
+
+    // Lights
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.65);
+    scene.add(ambientLight);
+
+    const sunLight = new THREE.DirectionalLight(0xfffaed, 1.1);
+    sunLight.position.set(5, 6, 4);
+    scene.add(sunLight);
+
+    const rimLight = new THREE.DirectionalLight(0x5ce0d8, 0.7);
+    rimLight.position.set(-4, -2, -3);
+    scene.add(rimLight);
+
+    // Planet Group
+    const object = new THREE.Group();
+    scene.add(object);
+
+    const textureLoader = new THREE.TextureLoader();
+    const colorMap = textureLoader.load('assets/images/planeta-texture-360.png');
+    colorMap.wrapS = THREE.RepeatWrapping;
+    colorMap.wrapT = THREE.ClampToEdgeWrapping;
+
+    const bumpMap = textureLoader.load('assets/images/planeta-bump-360.png');
+    bumpMap.wrapS = THREE.RepeatWrapping;
+    bumpMap.wrapT = THREE.ClampToEdgeWrapping;
+
+    const roughMap = textureLoader.load('assets/images/planeta-roughness-360.png');
+    roughMap.wrapS = THREE.RepeatWrapping;
+    roughMap.wrapT = THREE.ClampToEdgeWrapping;
+
+    // 1. Planet Mesh
+    const planetGeo = new THREE.SphereGeometry(1, 96, 96);
+    const planetMat = new THREE.MeshStandardMaterial({
+      map: colorMap,
+      bumpMap: bumpMap,
+      bumpScale: 0.035,
+      roughnessMap: roughMap,
+      roughness: 0.55,
+      metalness: 0.08,
+    });
+    const planetMesh = new THREE.Mesh(planetGeo, planetMat);
+    object.add(planetMesh);
+
+    // 2. Atmosphere Glow (Fresnel-like subtle cyan rim)
+    const atmosGeo = new THREE.SphereGeometry(1.025, 64, 64);
+    const atmosMat = new THREE.ShaderMaterial({
+      transparent: true,
+      blending: THREE.AdditiveBlending,
+      side: THREE.BackSide,
+      uniforms: {
+        glowColor: { value: new THREE.Color(0x5ce0d8) }
+      },
+      vertexShader: `
+        varying vec3 vNormal;
+        void main() {
+          vNormal = normalize(normalMatrix * normal);
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+      `,
+      fragmentShader: `
+        varying vec3 vNormal;
+        uniform vec3 glowColor;
+        void main() {
+          float intensity = pow(0.7 - dot(vNormal, vec3(0.0, 0.0, 1.0)), 2.0);
+          gl_FragColor = vec4(glowColor, intensity * 0.45);
+        }
+      `
+    });
+    const atmosMesh = new THREE.Mesh(atmosGeo, atmosMat);
+    object.add(atmosMesh);
+
+    // Slight axial tilt for cinematic realism
+    object.rotation.z = 0.15;
+    object.rotation.x = 0.1;
+
+    function animate() {
+      requestAnimationFrame(animate);
+      // Continuous rotation on Y-axis as specified:
+      object.rotation.y += 0.01;
+      renderer.render(scene, camera);
+    }
+
+    animate();
+  </script>
+</body>
+</html>

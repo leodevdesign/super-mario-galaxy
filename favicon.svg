@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#1A122B"/>
+      <stop offset="100%" stop-color="#06080D"/>
+    </radialGradient>
+    <linearGradient id="star" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFF5A5"/>
+      <stop offset="50%" stop-color="#FBE04B"/>
+      <stop offset="100%" stop-color="#D4B82A"/>
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="2" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  <circle cx="32" cy="32" r="32" fill="url(#bg)"/>
+  <circle cx="32" cy="32" r="30" fill="none" stroke="#FBE04B" stroke-width="0.5" opacity="0.3"/>
+  <!-- Star shape -->
+  <g filter="url(#glow)" transform="translate(32,30)">
+    <polygon points="0,-16 4.5,-5 16,-5 7,3 10,15 0,8 -10,15 -7,3 -16,-5 -4.5,-5" fill="url(#star)"/>
+    <!-- Eyes -->
+    <ellipse cx="-4" cy="-2" rx="2.2" ry="2.8" fill="#06080D"/>
+    <ellipse cx="4" cy="-2" rx="2.2" ry="2.8" fill="#06080D"/>
+    <ellipse cx="-3.5" cy="-2.8" rx="0.8" ry="1" fill="#FFFFFF"/>
+    <ellipse cx="4.5" cy="-2.8" rx="0.8" ry="1" fill="#FFFFFF"/>
+  </g>
+</svg>
