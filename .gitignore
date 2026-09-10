@@ -5,3 +5,4 @@ Thumbs.db
 .idea/
 *.log
 projeto-super-mario-galaxy/
+.playwright-cli/

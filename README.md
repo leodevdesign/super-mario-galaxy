@@ -26,7 +26,7 @@ O objetivo deste projeto foi transformar a experiência de um site promocional d
 ## ✨ Recursos e Detalhamento de Cada Seção
 
 ### 1. 🪐 Hero Section — Planeta 3D & Profundidade Galáctica
-- **Planeta 3D em Tempo Real com Three.js**: Substituição de vídeos pré-renderizados por uma esfera procedural 3D com texturas esféricas (color map, bump map de relevo e roughness map para especularidade). O planeta orbita continuamente em seu próprio eixo Y (`rotation.y += 0.01`) com shader Fresnel para reflexo atmosférico ciano.
+- **Planeta 3D em Tempo Real com Three.js**: Esfera 3D com mapas equiretangulares de cor, relevo e rugosidade, iluminação cinematográfica e atmosfera Fresnel em duas camadas. A rotação no eixo Y é independente do FPS e completa uma volta em aproximadamente 39 segundos.
 - **Efeito de Zoom no Scroll**: Conectado ao `GSAP ScrollTrigger`, a câmera e a escala do planeta aumentam suavemente conforme a página é rolada, simulando uma aproximação de órbita.
 - **Camada de Personagens com Transparência**: Mario e Yoshi em vídeos com canal alfa transparente (.webm / .mp4), posicionados estrategicamente nas laterais com z-index sobreposto ao planeta e paralaxe sutil.
 - **Lumas Flutuantes**: Estrelas Lumas animadas com keyframes orgânicos de gravidade zero e brilho estelar.

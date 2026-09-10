@@ -281,7 +281,7 @@ function initStarfield() {
 
 /**
  * Inicializa o Planeta 3D procedural/texturizado com Three.js (img2threejs)
- * Substitui o vídeo anterior, girando continuamente no próprio eixo Y (object.rotation.y += 0.01)
+ * Substitui o vídeo anterior, girando continuamente no próprio eixo Y
  * e respondendo ao zoom de scroll com GSAP ScrollTrigger.
  */
 function initPlanet3D() {
@@ -302,7 +302,8 @@ function initPlanet3D() {
     });
 
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1.05;
+    renderer.toneMappingExposure = 1.08;
+    renderer.outputEncoding = THREE.sRGBEncoding;
 
     function resize() {
         const dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -316,14 +317,14 @@ function initPlanet3D() {
     }
 
     // Iluminação cósmica cinematográfica
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.65);
+    const ambientLight = new THREE.AmbientLight(0xdff7ff, 0.48);
     scene.add(ambientLight);
 
-    const sunLight = new THREE.DirectionalLight(0xfffaed, 1.15);
+    const sunLight = new THREE.DirectionalLight(0xfff4dc, 1.32);
     sunLight.position.set(5, 6, 4);
     scene.add(sunLight);
 
-    const rimLight = new THREE.DirectionalLight(0x5ce0d8, 0.75);
+    const rimLight = new THREE.DirectionalLight(0x42cfff, 0.62);
     rimLight.position.set(-4, -2, -3);
     scene.add(rimLight);
 
@@ -333,15 +334,17 @@ function initPlanet3D() {
 
     // Texturas PBR geradas a partir da imagem planeta-mario-galaxy.png
     const textureLoader = new THREE.TextureLoader();
-    const colorMap = textureLoader.load('assets/images/planeta-texture-360.png');
+    const colorMap = textureLoader.load('assets/images/planeta-texture-360-v2.png');
     colorMap.wrapS = THREE.RepeatWrapping;
     colorMap.wrapT = THREE.ClampToEdgeWrapping;
+    colorMap.encoding = THREE.sRGBEncoding;
+    colorMap.anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy());
 
-    const bumpMap = textureLoader.load('assets/images/planeta-bump-360.png');
+    const bumpMap = textureLoader.load('assets/images/planeta-bump-360-v2.png');
     bumpMap.wrapS = THREE.RepeatWrapping;
     bumpMap.wrapT = THREE.ClampToEdgeWrapping;
 
-    const roughMap = textureLoader.load('assets/images/planeta-roughness-360.png');
+    const roughMap = textureLoader.load('assets/images/planeta-roughness-360-v2.png');
     roughMap.wrapS = THREE.RepeatWrapping;
     roughMap.wrapT = THREE.ClampToEdgeWrapping;
 
@@ -350,41 +353,60 @@ function initPlanet3D() {
     const planetMat = new THREE.MeshStandardMaterial({
         map: colorMap,
         bumpMap: bumpMap,
-        bumpScale: 0.035,
+        bumpScale: 0.027,
         roughnessMap: roughMap,
-        roughness: 0.55,
-        metalness: 0.08,
+        roughness: 0.62,
+        metalness: 0.02,
     });
     const planetMesh = new THREE.Mesh(planetGeo, planetMat);
     object.add(planetMesh);
 
-    // 2. Brilho atmosférico sutil (Fresnel Shader)
-    const atmosGeo = new THREE.SphereGeometry(1.025, 64, 64);
-    const atmosMat = new THREE.ShaderMaterial({
+    // 2. Atmosfera em duas camadas: borda nítida + halo externo difuso.
+    const atmosphereVertexShader = `
+        varying vec3 vNormal;
+        varying vec3 vViewDirection;
+        void main() {
+            vec4 viewPosition = modelViewMatrix * vec4(position, 1.0);
+            vNormal = normalize(normalMatrix * normal);
+            vViewDirection = normalize(-viewPosition.xyz);
+            gl_Position = projectionMatrix * viewPosition;
+        }
+    `;
+    const atmosphereFragmentShader = `
+        varying vec3 vNormal;
+        varying vec3 vViewDirection;
+        uniform vec3 glowColor;
+        uniform float glowPower;
+        uniform float glowIntensity;
+        void main() {
+            float fresnel = pow(1.0 - abs(dot(vNormal, vViewDirection)), glowPower);
+            gl_FragColor = vec4(glowColor, fresnel * glowIntensity);
+        }
+    `;
+
+    const rimGeo = new THREE.SphereGeometry(1.006, 96, 96);
+    const rimMat = new THREE.ShaderMaterial({
         transparent: true,
         blending: THREE.AdditiveBlending,
-        side: THREE.BackSide,
+        side: THREE.FrontSide,
+        depthWrite: false,
         uniforms: {
-            glowColor: { value: new THREE.Color(0x5ce0d8) }
+            glowColor: { value: new THREE.Color(0x7aeaff) },
+            glowPower: { value: 3.6 },
+            glowIntensity: { value: 0.34 }
         },
-        vertexShader: `
-            varying vec3 vNormal;
-            void main() {
-                vNormal = normalize(normalMatrix * normal);
-                gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-            }
-        `,
-        fragmentShader: `
-            varying vec3 vNormal;
-            uniform vec3 glowColor;
-            void main() {
-                float intensity = pow(0.7 - dot(vNormal, vec3(0.0, 0.0, 1.0)), 2.0);
-                gl_FragColor = vec4(glowColor, intensity * 0.45);
-            }
-        `
+        vertexShader: atmosphereVertexShader,
+        fragmentShader: atmosphereFragmentShader
     });
-    const atmosMesh = new THREE.Mesh(atmosGeo, atmosMat);
-    object.add(atmosMesh);
+    object.add(new THREE.Mesh(rimGeo, rimMat));
+
+    const haloGeo = new THREE.SphereGeometry(1.026, 72, 72);
+    const haloMat = rimMat.clone();
+    haloMat.side = THREE.BackSide;
+    haloMat.uniforms.glowColor.value = new THREE.Color(0x32c8ff);
+    haloMat.uniforms.glowPower.value = 2.15;
+    haloMat.uniforms.glowIntensity.value = 0.12;
+    object.add(new THREE.Mesh(haloGeo, haloMat));
 
     // Leve inclinação axial para realismo cósmico
     object.rotation.z = 0.12;
@@ -393,11 +415,11 @@ function initPlanet3D() {
     window.addEventListener('resize', resize);
     resize();
 
-    // Loop de renderização contínuo
+    // Loop independente da taxa de quadros; uma volta leva cerca de 39 segundos.
+    const clock = new THREE.Clock();
     function animate() {
         requestAnimationFrame(animate);
-        // Rotação contínua no eixo Y conforme especificado:
-        object.rotation.y += 0.01;
+        object.rotation.y += Math.min(clock.getDelta(), 0.05) * 0.16;
         renderer.render(scene, camera);
     }
 
