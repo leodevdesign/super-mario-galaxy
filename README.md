@@ -1,5 +1,11 @@
 # 🌌 Super Mario Galaxy: O Filme — Experiência Web Cinematográfica
 
+[![Acessar Projeto Online](https://img.shields.io/badge/Acessar_Projeto_Online-GitHub_Pages-FBE04B?style=for-the-badge&logo=google-chrome&logoColor=black)](https://leodevdesign.github.io/super-mario-galaxy/)
+[![Status](https://img.shields.io/badge/Status-Online_%26_Deploy_Ativo-22c55e?style=for-the-badge&logo=githubpages&logoColor=white)](https://leodevdesign.github.io/super-mario-galaxy/)
+
+> 🚀 **Live Demo:** Experimente a aplicação ao vivo em:  
+> 👉 **[https://leodevdesign.github.io/super-mario-galaxy/](https://leodevdesign.github.io/super-mario-galaxy/)**
+
 Uma landing page imersiva, cinematográfica e de alta performance criada para celebrar o universo de **Super Mario Galaxy: O Filme**. O projeto une renderização 3D em tempo real com **Three.js**, animações orientadas a scroll com **GSAP ScrollTrigger**, ambientação espacial com múltiplos sistemas de partículas e design responsivo com estética cósmica inspirada nos clássicos da Nintendo.
 
 ![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white)
@@ -88,7 +94,7 @@ O objetivo deste projeto foi transformar a experiência de um site promocional d
 3. **Acessar a aplicação:**
    Abra o seu navegador e acesse:
    ```
-   http://localhost:3333
+   http://localhost:3000
    ```
 
 ---
