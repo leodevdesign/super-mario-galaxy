@@ -888,38 +888,49 @@ function initEstreiaParallax() {
 }
 
 /**
- * Efeito de rastro de poeira estelar (Star Bits / Stardust) no cursor
- * Inspirado nas Star Bits cintilantes de Super Mario Galaxy.
- * Ativo apenas em dispositivos com mouse/ponteiro fino.
+ * Efeito de rastro cósmico de poeira estelar (Star Bits / Stardust) no cursor
+ * Inspirado nos Star Bits cintilantes de Super Mario Galaxy.
  */
 function initCursorStardust() {
-    if (typeof window === 'undefined' || !window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
-        return;
+    if (typeof window === 'undefined') return;
+
+    // Cria o canvas overlay para as partículas do cursor
+    let canvas = document.getElementById('cursor-trail-canvas');
+    if (!canvas) {
+        canvas = document.createElement('canvas');
+        canvas.id = 'cursor-trail-canvas';
+        canvas.style.cssText = 'position:fixed;top:0;left:0;width:100vw;height:100vh;pointer-events:none;z-index:999999;';
+        document.body.appendChild(canvas);
     }
 
-    const canvas = document.createElement('canvas');
-    canvas.id = 'cursor-trail-canvas';
-    canvas.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:99999;';
-    document.body.appendChild(canvas);
-
     const ctx = canvas.getContext('2d');
-    let width = (canvas.width = window.innerWidth);
-    let height = (canvas.height = window.innerHeight);
+    let dpr = Math.min(window.devicePixelRatio || 1, 2);
+    let width = window.innerWidth;
+    let height = window.innerHeight;
 
-    window.addEventListener('resize', () => {
-        width = canvas.width = window.innerWidth;
-        height = canvas.height = window.innerHeight;
-    });
+    function resize() {
+        dpr = Math.min(window.devicePixelRatio || 1, 2);
+        width = window.innerWidth;
+        height = window.innerHeight;
+        canvas.width = Math.floor(width * dpr);
+        canvas.height = Math.floor(height * dpr);
+        canvas.style.width = width + 'px';
+        canvas.style.height = height + 'px';
+    }
+
+    window.addEventListener('resize', resize, { passive: true });
+    resize();
 
     const particles = [];
-    const MAX_PARTICLES = 36;
+    const MAX_PARTICLES = 60;
     const COLORS = [
-        '#FBE04B', // Star Gold
-        '#4BE0FB', // Luma Cyan
-        '#FFF5A5', // Bright Star
-        '#9F7AEA', // Nebula Purple
-        '#FF9F43', // Fire Star Orange
-        '#FFFFFF'  // Pure Starlight
+        '#FFE600', // Star Gold
+        '#FFF5A5', // Bright Starlight
+        '#00F0FF', // Cosmic Cyan
+        '#A5F5FF', // Bright Luma Cyan
+        '#FF64B4', // Peach Pink
+        '#C084FC', // Nebula Purple
+        '#FFFFFF'  // Pure White
     ];
 
     let lastX = null;
@@ -928,17 +939,18 @@ function initCursorStardust() {
 
     class StardustParticle {
         constructor(x, y) {
-            this.x = x + (Math.random() - 0.5) * 6;
-            this.y = y + (Math.random() - 0.5) * 6;
+            this.x = x + (Math.random() - 0.5) * 8;
+            this.y = y + (Math.random() - 0.5) * 8;
             this.color = COLORS[Math.floor(Math.random() * COLORS.length)];
-            this.size = Math.random() * 3.2 + 1.8;
-            this.maxLife = Math.random() * 22 + 18;
+            // Partículas nítidas e visíveis
+            this.baseSize = Math.random() * 5 + 4; // 4px a 9px
+            this.maxLife = Math.random() * 35 + 30; // ~65 frames (~1.1s)
             this.life = this.maxLife;
-            this.vx = (Math.random() - 0.5) * 1.1;
-            this.vy = (Math.random() - 0.5) * 1.1 + 0.35;
-            this.isStar = Math.random() > 0.45;
-            this.rotation = Math.random() * Math.PI;
-            this.rotSpeed = (Math.random() - 0.5) * 0.12;
+            this.vx = (Math.random() - 0.5) * 1.5;
+            this.vy = (Math.random() - 0.5) * 1.5 + 0.35; // flutuação suave para baixo
+            this.isStar = Math.random() > 0.4;
+            this.rotation = Math.random() * Math.PI * 2;
+            this.rotSpeed = (Math.random() - 0.5) * 0.16;
         }
 
         update() {
@@ -949,30 +961,46 @@ function initCursorStardust() {
             return this.life > 0;
         }
 
-        draw(c) {
+        draw(c, scale) {
             const progress = this.life / this.maxLife;
             const alpha = Math.sin(progress * Math.PI * 0.5);
-            const currentSize = this.size * progress;
+            const size = this.baseSize * Math.max(0.2, progress) * scale;
 
             c.save();
-            c.translate(this.x, this.y);
+            c.translate(this.x * scale, this.y * scale);
             c.rotate(this.rotation);
             c.fillStyle = this.color;
-            c.globalAlpha = alpha;
+            c.globalAlpha = Math.min(1, alpha * 1.25);
             c.shadowColor = this.color;
-            c.shadowBlur = 5;
+            c.shadowBlur = 9 * scale;
 
             if (this.isStar) {
+                // Estrela diamante de 4 pontas estilo Super Mario Galaxy
                 c.beginPath();
-                c.moveTo(0, -currentSize * 1.5);
-                c.lineTo(currentSize * 0.45, 0);
-                c.lineTo(0, currentSize * 1.5);
-                c.lineTo(-currentSize * 0.45, 0);
+                c.moveTo(0, -size * 1.8);
+                c.lineTo(size * 0.45, 0);
+                c.lineTo(0, size * 1.8);
+                c.lineTo(-size * 0.45, 0);
                 c.closePath();
                 c.fill();
-            } else {
+
+                // Núcleo central brilhante branco
+                c.fillStyle = '#FFFFFF';
+                c.shadowBlur = 0;
                 c.beginPath();
-                c.arc(0, 0, currentSize, 0, Math.PI * 2);
+                c.arc(0, 0, size * 0.35, 0, Math.PI * 2);
+                c.fill();
+            } else {
+                // Gema cósmica / Star Bit esférica com brilho
+                c.beginPath();
+                c.arc(0, 0, size * 0.9, 0, Math.PI * 2);
+                c.fill();
+
+                // Brilho interno
+                c.fillStyle = '#FFFFFF';
+                c.shadowBlur = 0;
+                c.beginPath();
+                c.arc(-size * 0.25, -size * 0.25, size * 0.3, 0, Math.PI * 2);
                 c.fill();
             }
 
@@ -981,14 +1009,14 @@ function initCursorStardust() {
     }
 
     function renderLoop() {
-        ctx.clearRect(0, 0, width, height);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
 
         for (let i = particles.length - 1; i >= 0; i--) {
             const p = particles[i];
             if (!p.update()) {
                 particles.splice(i, 1);
             } else {
-                p.draw(ctx);
+                p.draw(ctx, dpr);
             }
         }
 
@@ -999,24 +1027,33 @@ function initCursorStardust() {
         }
     }
 
+    function spawnParticles(x, y, count = 2) {
+        for (let i = 0; i < count; i++) {
+            if (particles.length < MAX_PARTICLES) {
+                particles.push(new StardustParticle(x, y));
+            }
+        }
+
+        if (!animId) {
+            animId = requestAnimationFrame(renderLoop);
+        }
+    }
+
+    // Escuta movimento do mouse
     window.addEventListener('mousemove', (e) => {
         const x = e.clientX;
         const y = e.clientY;
 
-        if (lastX === null || Math.hypot(x - lastX, y - lastY) > 5) {
-            if (particles.length < MAX_PARTICLES) {
-                particles.push(new StardustParticle(x, y));
-                if (Math.random() > 0.5) {
-                    particles.push(new StardustParticle(x, y));
-                }
-            }
+        if (lastX === null || Math.hypot(x - lastX, y - lastY) > 2) {
+            spawnParticles(x, y, 2);
             lastX = x;
             lastY = y;
-
-            if (!animId) {
-                animId = requestAnimationFrame(renderLoop);
-            }
         }
+    }, { passive: true });
+
+    // Explosão suave de estrelinhas ao clicar
+    window.addEventListener('click', (e) => {
+        spawnParticles(e.clientX, e.clientY, 8);
     }, { passive: true });
 }
 

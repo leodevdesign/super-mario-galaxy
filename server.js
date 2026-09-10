@@ -58,6 +58,7 @@ const server = http.createServer((req, res) => {
         'Accept-Ranges': 'bytes',
         'Content-Length': chunkSize,
         'Content-Type': contentType,
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
       });
 
       fileStream.on('error', () => {});
@@ -67,7 +68,8 @@ const server = http.createServer((req, res) => {
       res.writeHead(200, {
         'Content-Length': fileSize,
         'Content-Type': contentType,
-        'Accept-Ranges': 'bytes'
+        'Accept-Ranges': 'bytes',
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
       });
 
       const fileStream = fs.createReadStream(filePath);
