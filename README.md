@@ -25,35 +25,41 @@ O objetivo deste projeto foi transformar a experiência de um site promocional d
 
 ## ✨ Recursos e Detalhamento de Cada Seção
 
-### 1. 🪐 Hero Section — Planeta 3D & Profundidade Galáctica
+### 1. 🚀 Preloader Cinematográfico — Salto Entre Galáxias
+- **Animação de Voo com Curva Bezier**: Mario navega pelo cosmos em uma trajetória curvilínea com GSAP, ajustando dinamicamente sua rotação com base no vetor tangente da curva.
+- **Rastro de Poeira Estelar**: Geração de partículas de luz e Star Bits durante o voo de aproximação.
+- **Constelação de Lumas Reativas**: Seis Lumas distribuídas pela rota acendem e ganham brilho áureo conforme a barra percentual de carregamento avança.
+- **Chegada à Grand Luma & Flash Cósmico**: Encontro com a Grand Luma em meio a órbitas energéticas, finalizando com um clarão suave que introduz a experiência sem cortes abruptos.
+
+### 2. 🪐 Hero Section — Planeta 3D & Profundidade Galáctica
 - **Planeta 3D em Tempo Real com Three.js**: Esfera 3D com mapas equiretangulares de cor, relevo e rugosidade, iluminação cinematográfica e atmosfera Fresnel em duas camadas. A rotação no eixo Y é independente do FPS e completa uma volta em aproximadamente 39 segundos.
 - **Efeito de Zoom no Scroll**: Conectado ao `GSAP ScrollTrigger`, a câmera e a escala do planeta aumentam suavemente conforme a página é rolada, simulando uma aproximação de órbita.
 - **Camada de Personagens com Transparência**: Mario e Yoshi em vídeos com canal alfa transparente (.webm / .mp4), posicionados estrategicamente nas laterais com z-index sobreposto ao planeta e paralaxe sutil.
 - **Lumas Flutuantes**: Estrelas Lumas animadas com keyframes orgânicos de gravidade zero e brilho estelar.
 - **Botão CTA Cósmico**: Botão magnético com animação contínua de varredura de luz (*light sweep*), sombra volumétrica púrpura e ação direta de scroll até o trailer com reprodução com som.
 
-### 2. 📜 Letreiro Cósmico Infinito (Marquee)
+### 3. 📜 Letreiro Cósmico Infinito (Marquee)
 - **Faixa de Destaque Contínua**: Letreiro horizontal em roxo nebulosa (`#6B46C1`) com tipografia em caixa alta, listando os heróis, vilões e o lema da aventura.
 - **Loop Infinito Sem Gaps**: Sequência duplicada com largura expandida que roda perfeitamente a 60 FPS com aceleração de hardware (`transform: translate3d`).
 
-### 3. 👥 Seção de Personagens — Elenco do Cosmos
+### 4. 👥 Seção de Personagens — Elenco do Cosmos
 - **Fundo Cósmico de Nebulosa Profunda**: Pano de fundo com estrelas distantes e gradientes de vinheta superior e inferior, integrando perfeitamente a transição entre seções.
 - **Paralaxe Diferencial no Scroll**: Cada um dos 6 personagens (Mario, Luigi, Peach, Rosalina, Yoshi e Bowser Jr.) possui curvas de velocidade e deslocamento distintas via `GSAP ScrollTrigger`, criando um efeito de diorama tridimensional.
 - **Responsividade com Parallax Sutil no Mobile**: No smartphone, onde os personagens são dispostos verticalmente, cada card se move suavemente de forma independente ao entrar no campo de visão, sem prejudicar a leitura nem gerar overflow.
 
-### 4. 🎬 Seção de Trailer Oficial — Cinema Galáctico
+### 5. 🎬 Seção de Trailer Oficial — Cinema Galáctico
 - **Player de Vídeo Customizado**: Moldura com gradiente luminoso cósmico de 4 cores (ciano, amarelo-estrela, roxo-nebulosa e vermelho-cometa).
 - **Carregamento Assíncrono Inteligente (Lazy Load)**: O arquivo MP4 do trailer não sobrecarrega a página inicial; ele só é requisitado via `IntersectionObserver` quando o usuário se aproxima da seção (300px antes).
 - **Autoplay em Looping Silencioso**: Inicia suavemente em loop sem som (obedecendo às políticas modernas dos navegadores) com botão central estelar para ativar o áudio e controles nativos completos.
 - **Layout Adaptativo**: Otimizado tanto para telas ultra-wide quanto para celulares, evitando barras de rolagem horizontais e mantendo a proporção 16:9 perfeita.
 
-### 5. ⏳ Seção de Estreia — Contagem Regressiva & Moldura Nebular
+### 6. ⏳ Seção de Estreia — Contagem Regressiva & Moldura Nebular
 - **Moldura Cósmica com Nuvens Nebulares**: Quadro exclusivo com nebulosas coloridas nos 4 cantos (rosa, roxo, azul e laranja) e linhas de luz neon que emolduram a seção.
 - **Fundo Mobile Dedicado (`fundo02-mobile.webp`)**: Versão portrait vertical exclusiva para smartphones que mantém as 4 nuvens perfeitamente enquadradas nos cantos da tela do celular sem cortes laterais.
 - **Contador Regressivo em Tempo Real**: Cartões em estilo glassmorphism com desfoque de fundo (`backdrop-filter: blur(20px)`), relevo interno e animação de queda nos dígitos (`slide-down`) a cada segundo.
 - **Layout Inteligente no Mobile**: Os 4 blocos (**DIAS**, **HORAS**, **MIN**, **SEG**) se alinham simetricamente em uma única linha no celular, com separadores dourados e leitura instantânea.
 
-### 6. ⭐ Cursor Estelar & Rastro de Star Bits
+### 7. ⭐ Cursor Estelar & Rastro de Star Bits
 - **Cursor Temático Super Mario Galaxy**: Ponteiro estelar celeste (*Star Pointer*) para navegação padrão e *Power Star* com olhinhos expressivos ao passar o mouse sobre botões, links e cards clicáveis.
 - **Rastro de Poeira Estelar (Stardust Trail)**: Partículas e estrelas de 4 pontas douradas, cianos e brancas que flutuam e se dissipam suavemente ao mover o mouse (desativado automaticamente no mobile para preservar bateria e toques de tela).
 

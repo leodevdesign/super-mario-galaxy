@@ -1730,3 +1730,234 @@ html {
     cursor: url('../assets/images/cursor-pointer.png') 14 3, pointer;
   }
 }
+
+/* =========================================
+   CINEMATIC GALAXY PRELOADER
+   ========================================= */
+html.preloader-active,
+body.preloader-active {
+  overflow: hidden;
+}
+
+.galaxy-loader {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  overflow: hidden;
+  isolation: isolate;
+  display: grid;
+  place-items: center;
+  color: var(--color-text-primary);
+  background: #03040a;
+  font-family: var(--font-primary);
+}
+
+.galaxy-loader__backdrop {
+  position: absolute;
+  inset: -4%;
+  background:
+    linear-gradient(180deg, rgba(2, 4, 13, 0.08), rgba(3, 3, 12, 0.48)),
+    url('../assets/images/planeta-mario-galaxy-fundo-sem-planeta.jpg') center / cover no-repeat;
+  transform: scale(1.08);
+  will-change: transform;
+}
+
+.galaxy-loader__vignette {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 50% 44%, transparent 16%, rgba(3, 4, 12, 0.18) 52%, rgba(1, 2, 8, 0.76) 100%),
+    linear-gradient(90deg, rgba(2, 3, 11, 0.45), transparent 25%, transparent 75%, rgba(2, 3, 11, 0.45));
+}
+
+.galaxy-loader__stars,
+.galaxy-loader__stars::before,
+.galaxy-loader__stars::after {
+  position: absolute;
+  inset: 0;
+  content: '';
+  background-image:
+    radial-gradient(circle, rgba(255,255,255,.92) 0 1px, transparent 1.7px),
+    radial-gradient(circle, rgba(126,231,255,.8) 0 1px, transparent 1.8px);
+  background-position: 12% 18%, 72% 64%;
+  background-size: 91px 83px, 137px 121px;
+  opacity: .33;
+}
+
+.galaxy-loader__stars::before { transform: scale(1.25) rotate(7deg); opacity: .28; }
+.galaxy-loader__stars::after { transform: scale(.78) rotate(-11deg); opacity: .42; }
+
+.galaxy-loader__route { position: absolute; inset: 0; }
+
+.galaxy-loader__luma {
+  position: absolute;
+  width: clamp(28px, 3vw, 48px);
+  opacity: .18;
+  filter: grayscale(.65) brightness(.7) drop-shadow(0 0 0 transparent);
+  transform: scale(.7);
+  transition: none;
+  will-change: transform, opacity, filter;
+}
+
+.galaxy-loader__luma--1 { left: 12%; top: 66%; }
+.galaxy-loader__luma--2 { left: 25%; top: 45%; }
+.galaxy-loader__luma--3 { left: 39%; top: 29%; }
+.galaxy-loader__luma--4 { left: 55%; top: 25%; }
+.galaxy-loader__luma--5 { left: 68%; top: 37%; }
+.galaxy-loader__luma--6 { left: 77%; top: 53%; }
+
+.galaxy-loader__mario {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 4;
+  width: clamp(190px, 25vw, 430px);
+  pointer-events: none;
+  transform-origin: 52% 54%;
+  filter: drop-shadow(0 18px 34px rgba(0,0,0,.42)) drop-shadow(0 0 14px rgba(82,202,255,.18));
+  will-change: transform, filter;
+}
+
+.galaxy-loader__trail {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+}
+
+.galaxy-loader__trail-particle {
+  position: absolute;
+  width: var(--particle-size);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: var(--particle-color);
+  box-shadow: 0 0 8px var(--particle-color), 0 0 18px var(--particle-color);
+  pointer-events: none;
+}
+
+.galaxy-loader__destination {
+  position: absolute;
+  z-index: 5;
+  right: 7vw;
+  top: 50%;
+  width: clamp(115px, 15vw, 235px);
+  aspect-ratio: 1;
+  transform: translateY(-50%);
+  display: grid;
+  place-items: center;
+}
+
+.galaxy-loader__grand-luma {
+  width: 72%;
+  z-index: 2;
+  filter: drop-shadow(0 0 14px rgba(255,225,72,.9)) drop-shadow(0 0 42px rgba(75,224,251,.5));
+  will-change: transform, filter;
+}
+
+.galaxy-loader__orbit {
+  position: absolute;
+  border: 1px solid rgba(165,245,255,.26);
+  border-radius: 50%;
+  transform: rotate(-22deg);
+}
+
+.galaxy-loader__orbit--outer { inset: 2%; border-style: dashed; }
+.galaxy-loader__orbit--inner { inset: 14%; border-color: rgba(251,224,75,.3); transform: rotate(31deg); }
+
+.galaxy-loader__copy {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  pointer-events: none;
+  transform: translateY(20vh);
+}
+
+.galaxy-loader__eyebrow {
+  margin: 0 0 10px;
+  color: var(--color-luma-300);
+  font-size: clamp(.62rem, .72vw, .78rem);
+  font-weight: 700;
+  letter-spacing: .34em;
+}
+
+.galaxy-loader__title {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  font-size: clamp(1.8rem, 4.2vw, 4.6rem);
+  font-weight: 900;
+  line-height: .86;
+  letter-spacing: -.055em;
+  text-shadow: 0 0 28px rgba(75,224,251,.18);
+}
+
+.galaxy-loader__title span:last-child { color: var(--color-star-500); }
+
+.galaxy-loader__progress {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: min(72vw, 310px);
+  margin: 23px auto 0;
+}
+
+.galaxy-loader__progress-line {
+  position: relative;
+  flex: 1;
+  height: 2px;
+  overflow: hidden;
+  background: rgba(255,255,255,.16);
+}
+
+.galaxy-loader__progress-line i {
+  display: block;
+  width: 100%;
+  height: 100%;
+  transform: scaleX(0);
+  transform-origin: left center;
+  background: linear-gradient(90deg, var(--color-luma-500), var(--color-star-500));
+  box-shadow: 0 0 12px rgba(251,224,75,.8);
+}
+
+.galaxy-loader__percentage {
+  min-width: 2.6ch;
+  color: var(--color-text-primary);
+  font-size: .72rem;
+  font-weight: 700;
+  letter-spacing: .12em;
+  font-variant-numeric: tabular-nums;
+}
+
+.galaxy-loader__flash {
+  position: absolute;
+  z-index: 20;
+  right: 7vw;
+  top: 50%;
+  width: 12px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  opacity: 0;
+  transform: translate(0, -50%) scale(0);
+  background: #fffdf2;
+  box-shadow: 0 0 55px 35px #fff, 0 0 130px 85px rgba(251,224,75,.95), 0 0 240px 150px rgba(75,224,251,.65);
+  will-change: transform, opacity;
+}
+
+@media (max-width: 767px) {
+  .galaxy-loader__backdrop { background-position: 58% center; }
+  .galaxy-loader__destination { right: 3vw; top: 42%; width: clamp(94px, 27vw, 150px); }
+  .galaxy-loader__mario { width: clamp(150px, 48vw, 245px); }
+  .galaxy-loader__copy { transform: translateY(23vh); }
+  .galaxy-loader__luma--1 { left: 8%; top: 63%; }
+  .galaxy-loader__luma--2 { left: 19%; top: 45%; }
+  .galaxy-loader__luma--3 { left: 34%; top: 32%; }
+  .galaxy-loader__luma--4 { left: 49%; top: 27%; }
+  .galaxy-loader__luma--5 { left: 62%; top: 32%; }
+  .galaxy-loader__luma--6 { left: 73%; top: 42%; }
+  .galaxy-loader__flash { right: 7vw; top: 42%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .galaxy-loader__stars::before,
+  .galaxy-loader__stars::after { transform: none; }
+}

@@ -1,4 +1,217 @@
 /**
+ * Preloader cinematográfico: Mario segue uma rota de Lumas e abre a Hero
+ * com um clarão dourado. O encerramento espera o load real e uma duração
+ * mínima para que a pequena narrativa nunca seja cortada pela metade.
+ */
+function initGalaxyPreloader() {
+    const loader = document.getElementById('galaxy-loader');
+    const mario = document.getElementById('galaxy-loader-mario');
+    const grandLuma = document.getElementById('galaxy-loader-grand-luma');
+    const trail = document.getElementById('galaxy-loader-trail');
+    const percentage = document.getElementById('galaxy-loader-percentage');
+    const progressLine = document.getElementById('galaxy-loader-progress-line');
+
+    if (!loader) {
+        document.body.classList.remove('preloader-active');
+        document.documentElement.classList.remove('preloader-active');
+        return;
+    }
+
+    if (typeof gsap === 'undefined') {
+        percentage.textContent = '100';
+        progressLine.style.transform = 'scaleX(1)';
+        window.setTimeout(() => {
+            loader.remove();
+            document.body.classList.remove('preloader-active');
+            document.documentElement.classList.remove('preloader-active');
+        }, 500);
+        return;
+    }
+
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const lumas = Array.from(loader.querySelectorAll('.galaxy-loader__luma'));
+    const litLumas = new Set();
+    const progressState = { value: 0 };
+    const flightState = { value: 0 };
+    const startedAt = performance.now();
+    const minimumDuration = reduceMotion ? 700 : 4300;
+    let pageReady = document.readyState === 'complete';
+    let flightComplete = reduceMotion;
+    let finished = false;
+    let lastParticleAt = 0;
+
+    function setProgress(value) {
+        const safeValue = Math.max(0, Math.min(100, Math.round(value)));
+        percentage.textContent = String(safeValue).padStart(2, '0');
+        gsap.set(progressLine, { scaleX: safeValue / 100 });
+
+        lumas.forEach((luma, index) => {
+            const threshold = ((index + 1) / lumas.length) * 90;
+            if (safeValue >= threshold && !litLumas.has(index)) {
+                litLumas.add(index);
+                gsap.to(luma, {
+                    autoAlpha: 1,
+                    scale: 1,
+                    filter: 'grayscale(0) brightness(1.15) drop-shadow(0 0 16px rgba(251,224,75,.95))',
+                    duration: reduceMotion ? 0 : 0.42,
+                    ease: 'back.out(2)'
+                });
+            }
+        });
+    }
+
+    function spawnTrailParticle(x, y) {
+        if (reduceMotion || !trail) return;
+        const now = performance.now();
+        if (now - lastParticleAt < 42) return;
+        lastParticleAt = now;
+
+        const particle = document.createElement('i');
+        particle.className = 'galaxy-loader__trail-particle';
+        const size = 2 + Math.random() * 5;
+        const color = Math.random() > 0.45 ? '#FBE04B' : '#7AEAFF';
+        particle.style.setProperty('--particle-size', `${size}px`);
+        particle.style.setProperty('--particle-color', color);
+        particle.style.left = `${x + (Math.random() - 0.5) * 42}px`;
+        particle.style.top = `${y + (Math.random() - 0.5) * 32}px`;
+        trail.appendChild(particle);
+
+        gsap.fromTo(particle,
+            { autoAlpha: 1, scale: 1 },
+            {
+                autoAlpha: 0,
+                scale: 0.15,
+                x: -45 - Math.random() * 55,
+                y: (Math.random() - 0.5) * 45,
+                duration: 0.7 + Math.random() * 0.55,
+                ease: 'power2.out',
+                onComplete: () => particle.remove()
+            }
+        );
+    }
+
+    function renderFlight() {
+        const t = flightState.value;
+        const viewportWidth = window.innerWidth;
+        const viewportHeight = window.innerHeight;
+        const mobile = viewportWidth < 768;
+        const p0 = { x: -0.14 * viewportWidth, y: mobile ? 0.72 * viewportHeight : 0.74 * viewportHeight };
+        const p1 = { x: mobile ? 0.43 * viewportWidth : 0.43 * viewportWidth, y: mobile ? 0.13 * viewportHeight : 0.08 * viewportHeight };
+        const p2 = { x: mobile ? 0.87 * viewportWidth : 0.88 * viewportWidth, y: mobile ? 0.42 * viewportHeight : 0.50 * viewportHeight };
+        const inverse = 1 - t;
+        const x = inverse * inverse * p0.x + 2 * inverse * t * p1.x + t * t * p2.x;
+        const y = inverse * inverse * p0.y + 2 * inverse * t * p1.y + t * t * p2.y;
+        const tangentX = 2 * inverse * (p1.x - p0.x) + 2 * t * (p2.x - p1.x);
+        const tangentY = 2 * inverse * (p1.y - p0.y) + 2 * t * (p2.y - p1.y);
+        const angle = Math.atan2(tangentY, tangentX) * 180 / Math.PI;
+        const scale = t < 0.62 ? 0.62 + t * 0.72 : 1.07 - (t - 0.62) * 1.25;
+
+        gsap.set(mario, {
+            x: x - mario.offsetWidth * 0.5,
+            y: y - mario.offsetHeight * 0.5,
+            // Compensa a orientação vertical do recorte para o corpo navegar
+            // para a direita enquanto ainda acompanha as mudanças da curva.
+            rotation: angle * 0.55 + 55,
+            scale: Math.max(0.48, scale)
+        });
+        spawnTrailParticle(x - mario.offsetWidth * 0.17, y + mario.offsetHeight * 0.08);
+    }
+
+    function finishPreloader() {
+        if (finished || !pageReady || !flightComplete || performance.now() - startedAt < minimumDuration) return;
+        finished = true;
+
+        const flash = loader.querySelector('.galaxy-loader__flash');
+        const orbits = loader.querySelectorAll('.galaxy-loader__orbit');
+        gsap.killTweensOf([mario, grandLuma, ...orbits]);
+        const finishTimeline = gsap.timeline({
+            defaults: { ease: 'power3.inOut' },
+            onComplete: () => {
+                loader.remove();
+                document.body.classList.remove('preloader-active');
+                document.documentElement.classList.remove('preloader-active');
+                window.dispatchEvent(new Event('resize'));
+            }
+        });
+
+        finishTimeline
+            .to(progressState, {
+                value: 100,
+                duration: reduceMotion ? 0 : 0.32,
+                onUpdate: () => setProgress(progressState.value)
+            })
+            .to(mario, { scale: 0.12, autoAlpha: 0, duration: reduceMotion ? 0 : 0.42 }, '<')
+            .to(grandLuma, {
+                scale: 1.3,
+                rotation: 8,
+                filter: 'drop-shadow(0 0 30px #fff) drop-shadow(0 0 75px rgba(251,224,75,1))',
+                duration: reduceMotion ? 0 : 0.5
+            }, '<')
+            .to(orbits, { scale: 1.45, autoAlpha: 0, duration: reduceMotion ? 0 : 0.45 }, '<')
+            .to(flash, { autoAlpha: 1, scale: reduceMotion ? 20 : 190, duration: reduceMotion ? 0.12 : 0.72, ease: 'expo.in' }, '-=0.1')
+            .to(loader, { autoAlpha: 0, duration: reduceMotion ? 0.18 : 0.55, ease: 'power2.out' }, '-=0.05');
+    }
+
+    function markPageReady() {
+        pageReady = true;
+        const remaining = Math.max(0, minimumDuration - (performance.now() - startedAt));
+        window.setTimeout(finishPreloader, remaining);
+    }
+
+    gsap.set(mario, { autoAlpha: reduceMotion ? 0 : 1 });
+    gsap.set('.galaxy-loader__copy > *', { autoAlpha: 0, y: 18 });
+    gsap.set(grandLuma, { scale: 0.72, rotation: -6 });
+
+    if (reduceMotion) {
+        setProgress(100);
+        markPageReady();
+    } else {
+        gsap.timeline()
+            .to('.galaxy-loader__backdrop', { scale: 1, duration: 5.2, ease: 'sine.out' })
+            .to('.galaxy-loader__copy > *', { autoAlpha: 1, y: 0, stagger: 0.12, duration: 0.7, ease: 'power3.out' }, 0.18)
+            .to(grandLuma, { scale: 1, rotation: 0, duration: 1.2, ease: 'back.out(1.7)' }, 0.35)
+            .to('.galaxy-loader__orbit--outer', { rotation: 338, duration: 8, repeat: -1, ease: 'none' }, 0)
+            .to('.galaxy-loader__orbit--inner', { rotation: -329, duration: 6, repeat: -1, ease: 'none' }, 0);
+
+        gsap.to(progressState, {
+            value: 92,
+            duration: 3.75,
+            ease: 'power1.out',
+            onUpdate: () => setProgress(progressState.value)
+        });
+
+        gsap.to(flightState, {
+            value: 1,
+            delay: 0.38,
+            duration: 3.35,
+            ease: 'power2.inOut',
+            onUpdate: renderFlight,
+            onComplete: () => {
+                gsap.to(grandLuma, { scale: 1.07, duration: 0.55, repeat: -1, yoyo: true, ease: 'sine.inOut' });
+                // Ao alcançar a Grand Luma, volta a encarar a câmera antes do clarão.
+                gsap.to(mario, {
+                    rotation: 0,
+                    duration: 0.58,
+                    ease: 'power3.inOut',
+                    onComplete: () => {
+                        flightComplete = true;
+                        gsap.to(mario, { y: '-=7', rotation: '+=2', duration: 0.7, repeat: -1, yoyo: true, ease: 'sine.inOut' });
+                        finishPreloader();
+                    }
+                });
+            }
+        });
+    }
+
+    window.addEventListener('load', markPageReady, { once: true });
+    if (document.readyState === 'complete') markPageReady();
+    window.setTimeout(() => {
+        pageReady = true;
+        finishPreloader();
+    }, 12000);
+}
+
+/**
  * Inicializa a navegação flutuante com base no scroll
  * Threshold: 60% da altura do hero ou 360px como fallback
  */
@@ -1080,6 +1293,7 @@ function initCursorStardust() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+    initGalaxyPreloader();
     initFloatingNav();
     initStarfield();
     initPlanet3D();

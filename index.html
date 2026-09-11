@@ -29,10 +29,50 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/style.css?v=2">
+    <link rel="stylesheet" href="css/style.css?v=4">
 </head>
 
-<body>
+<body class="preloader-active">
+    <script>document.documentElement.classList.add('preloader-active');</script>
+    <div class="galaxy-loader" id="galaxy-loader" role="status" aria-live="polite" aria-label="Preparando o salto entre galáxias">
+        <div class="galaxy-loader__backdrop" aria-hidden="true"></div>
+        <div class="galaxy-loader__vignette" aria-hidden="true"></div>
+        <div class="galaxy-loader__stars" aria-hidden="true"></div>
+
+        <div class="galaxy-loader__route" aria-hidden="true">
+            <img class="galaxy-loader__luma galaxy-loader__luma--1" src="assets/images/estrela-min.webp" alt="">
+            <img class="galaxy-loader__luma galaxy-loader__luma--2" src="assets/images/estrela-min.webp" alt="">
+            <img class="galaxy-loader__luma galaxy-loader__luma--3" src="assets/images/estrela-min.webp" alt="">
+            <img class="galaxy-loader__luma galaxy-loader__luma--4" src="assets/images/estrela-min.webp" alt="">
+            <img class="galaxy-loader__luma galaxy-loader__luma--5" src="assets/images/estrela-min.webp" alt="">
+            <img class="galaxy-loader__luma galaxy-loader__luma--6" src="assets/images/estrela-min.webp" alt="">
+        </div>
+
+        <div class="galaxy-loader__trail" id="galaxy-loader-trail" aria-hidden="true"></div>
+        <img class="galaxy-loader__mario" id="galaxy-loader-mario" src="assets/images/mario-original.webp" alt="" aria-hidden="true">
+
+        <div class="galaxy-loader__destination" aria-hidden="true">
+            <span class="galaxy-loader__orbit galaxy-loader__orbit--outer"></span>
+            <span class="galaxy-loader__orbit galaxy-loader__orbit--inner"></span>
+            <img class="galaxy-loader__grand-luma" id="galaxy-loader-grand-luma" src="assets/images/luma-grand-preloader.png" alt="">
+        </div>
+
+        <div class="galaxy-loader__copy">
+            <p class="galaxy-loader__eyebrow">SUPER MARIO GALAXY</p>
+            <p class="galaxy-loader__title" aria-label="Preparando o salto">
+                <span>PREPARANDO</span>
+                <span>O SALTO</span>
+            </p>
+            <div class="galaxy-loader__progress" aria-hidden="true">
+                <span class="galaxy-loader__progress-line"><i id="galaxy-loader-progress-line"></i></span>
+                <span class="galaxy-loader__percentage" id="galaxy-loader-percentage">00</span>
+            </div>
+        </div>
+
+        <div class="galaxy-loader__flash" aria-hidden="true"></div>
+    </div>
+    <noscript><style>.galaxy-loader{display:none!important}.preloader-active{overflow:auto!important}</style></noscript>
+
     <canvas id="starfield" aria-hidden="true"></canvas>
 
     <header class="nav-floating-shell">
@@ -359,7 +399,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
-    <script src="js/script.js?v=2"></script>
+    <script src="js/script.js?v=4"></script>
 </body>
 
 </html>
